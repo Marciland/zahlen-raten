@@ -1,0 +1,33 @@
+generate random number between 0-100
+
+enter player name
+count tries
+
+answer: too high, too low
+
+record tries and names
+
+show names and tries on webpage
+
+
+Barrierefreiheit:
+- Textalternativen für Bilder + Multimedia
+- Klare und leicht verständliche Sprache
+- Kontrastreiche Farbkombinationen
+- Navigierbarkeit mit der Tastatur
+- klare und einheitliche Struktur mit Überschriften und Absätzen
+- leicht lesbare Schriftarten
+  - keine Serifen
+  - min 1.2 em (120 Prozent)
+  - Überschriften hervorheben
+  - max 2 verschiedene Schriftarten
+  - kein Inhalt darf verloren gehen wenn...
+      - Abstand zwischen Absätzen auf 200% dre Schriftgröße
+      - Zeilenhöhe auf 150% der Schriftgröße
+      - Wortabstand auf 16% der Schriftgröße
+      - Buchstabenabstand auf 12%
+  - kein kursiv, bold in Maßen okay
+  - Beispiele: Tahoma, Verdana
+- kein Flackern und Blinken
+- Videos und Audiodateien mit Untertiteln
+- Geräteunabhängig
