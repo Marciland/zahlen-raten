@@ -1,9 +1,17 @@
-<script setup></script>
+<script setup>
+import * as bootstrap from "bootstrap";
+</script>
 
 <template>
   <div class="app-container">
     <header>
-      <h1 class="title">Zahlen Raten</h1>
+      <nav class="navbar bg-dark">
+        <div class="container-fluid">
+          <a class="nav-link ms-auto" style="cursor: pointer; color: white"
+            >Profile</a
+          >
+        </div>
+      </nav>
     </header>
 
     <main>
@@ -15,21 +23,5 @@
 </template>
 
 <style>
-.title {
-  display: block;
-  text-decoration: underline;
-  text-align: center;
-  font-size: 50px;
-  font-family: t;
-  font-weight: 1000;
-  margin: 0 auto;
-  padding-top: 20px;
-  padding-bottom: 20px;
-}
-.app-container {
-  background-image: url("https://cdn.pixabay.com/photo/2023/01/10/03/57/digits-7708860_1280.jpg");
-  background-size: cover;
-  width: 100vw;
-  height: 100vh;
-}
+@import "@/assets/main.css";
 </style>

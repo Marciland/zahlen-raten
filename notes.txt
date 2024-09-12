@@ -22,7 +22,7 @@ Barrierefreiheit:
   - Überschriften hervorheben
   - max 2 verschiedene Schriftarten
   - kein Inhalt darf verloren gehen wenn...
-      - Abstand zwischen Absätzen auf 200% dre Schriftgröße
+      - Abstand zwischen Absätzen auf 200% der Schriftgröße
       - Zeilenhöhe auf 150% der Schriftgröße
       - Wortabstand auf 16% der Schriftgröße
       - Buchstabenabstand auf 12%

@@ -1,11 +1,11 @@
 <script setup>
-import { ref } from "vue";
+import { ref, onMounted } from "vue";
 
 const isLoggedIn = ref(false);
 
-const login = async (event) => {
+const submit = async (event) => {
   event.preventDefault();
-  const url = "http://localhost:5000/login";
+  const url = "http://localhost:5000/" + event.submitter.id;
   let token;
 
   const username = document.getElementById("userName").value;
@@ -31,57 +31,52 @@ const login = async (event) => {
     console.log(error);
     return;
   }
+  // TODO popup with successfully logged in or registered
   sessionStorage.setItem("token", token);
   isLoggedIn.value = true;
 };
+
+onMounted(() => {
+  if (sessionStorage.getItem("token")) {
+    isLoggedIn.value = true;
+  }
+});
 </script>
 
 <template>
-  <div v-if="!isLoggedIn" class="login">
-    <form class="loginForm" :onSubmit="login" method="post">
+  <div v-if="!isLoggedIn" class="displayBox">
+    <h1 class="title">Zahlen Raten</h1>
+    <form class="loginForm" :onSubmit="submit" method="post">
       <input id="userName" type="text" placeholder="Username" />
       <input id="password" type="password" placeholder="Password" />
-      <button id="submit" type="submit">Login</button>
-      <button id="submit" type="submit">Register</button>
+      <button id="login" type="submit">Login</button>
+      <button id="register" type="submit">Register</button>
     </form>
   </div>
   <div v-else>Übersicht für eingeloggte hier</div>
 </template>
 
-<style>
-.login {
-  background-color: white;
-  outline: auto;
-  width: 50%;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 40px 0;
-  min-height: 50vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
+<style scoped>
 .loginForm {
   width: 90%;
   max-width: 400px;
-  padding: 20px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
 
-form input {
+.loginForm input {
   width: 100%;
   padding: 10px;
   margin-bottom: 15px;
   box-sizing: border-box;
 }
 
-form button {
+.loginForm button {
   width: 100%;
   padding: 10px;
   cursor: pointer;
+  margin-bottom: 15px;
 }
 </style>
