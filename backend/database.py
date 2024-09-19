@@ -29,10 +29,10 @@ class Player(Base):
 
 class Highscore(Base):
     __tablename__ = "highscore"
-    score_id: Mapped[py_UUID] = mapped_column(type_=UUID,
-                                              default_factory=uuid4,
-                                              primary_key=True,
-                                              nullable=False)
+    game_id: Mapped[py_UUID] = mapped_column(type_=UUID,
+                                             default_factory=uuid4,
+                                             primary_key=True,
+                                             nullable=False)
 
     username: Mapped[str] = mapped_column(type_=TEXT,
                                           default=None,

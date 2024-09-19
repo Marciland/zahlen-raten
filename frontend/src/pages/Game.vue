@@ -1,19 +1,43 @@
 <script setup>
+import { router } from "@/router";
+
 const submit = async (event) => {
   event.preventDefault();
-  console.log(event);
+  const guess = document.getElementById("inputGuess").value;
+  const gameId = sessionStorage.getItem("gameId");
+  const token = sessionStorage.getItem("token");
+
+  const requestOptions = {
+    method: "POST",
+    headers: {
+      Authorization: "Bearer " + token,
+      "Content-Type": "application/json",
+    },
+    signal: AbortSignal.timeout(2000),
+    body: JSON.stringify({ gameId, guess }),
+  };
+
   try {
-    const response = fetch("http://localhost:5000/");
-    // ToDo: Route definieren
+    const response = await fetch("http://localhost:5000/guess", requestOptions);
 
     if (response.ok) {
       alert("Success! You guessed the correct number!");
-    } else {
+      // TODO check response message
       alert("Failure! Try again!");
+      // TODO wenn game finished, lösche game id aus session storage
+    } else {
+      if (response.status === 401) {
+        sessionStorage.removeItem("token");
+        router.push("/");
+        return;
+      }
     }
   } catch {
     alert("Error");
   }
+
+  // TODO if not game id in session storage then save game id in session storage from header
+  // ToDo: Alerts ersetzen wegen schelchter screen reader Kompatibilität
 };
 </script>
 
@@ -21,14 +45,14 @@ const submit = async (event) => {
   <div class="displayBox">
     <h1 class="title">Zahlen Raten</h1>
     <form class="gameForm" :onSubmit="submit" method="post">
-      <label for="Eingabefeld">Zahl von 1 - 100</label>
+      <label for="Eingabefeld">Zahl von 0 - 100</label>
       <input
         type="number"
         id="inputGuess"
         name="Eingabefeld"
         pattern="[0-9]*"
         inputmode="numeric"
-        min="1"
+        min="0"
         max="100"
         required
       />

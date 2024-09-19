@@ -1,7 +1,7 @@
 <script setup>
-import { ref, onMounted } from "vue";
-
-const isLoggedIn = ref(false);
+import { ref } from "vue";
+import { router } from "@/router";
+import { tokenIsValid } from "@/assets/validation";
 
 const submit = async (event) => {
   event.preventDefault();
@@ -33,18 +33,12 @@ const submit = async (event) => {
   }
   // TODO popup with successfully logged in or registered
   sessionStorage.setItem("token", token);
-  isLoggedIn.value = true;
+  router.push("/game");
 };
-
-onMounted(() => {
-  if (sessionStorage.getItem("token")) {
-    isLoggedIn.value = true;
-  }
-});
 </script>
 
 <template>
-  <div v-if="!isLoggedIn" class="displayBox">
+  <div class="displayBox">
     <h1 class="title">Zahlen Raten</h1>
     <form class="loginForm" :onSubmit="submit" method="post">
       <input id="userName" type="text" placeholder="Username" />
@@ -53,7 +47,6 @@ onMounted(() => {
       <button id="register" type="submit">Register</button>
     </form>
   </div>
-  <div v-else>Übersicht für eingeloggte hier</div>
 </template>
 
 <style scoped>

@@ -2,12 +2,16 @@ from datetime import datetime, timedelta
 from uuid import uuid4
 
 import jwt
+from jwt.exceptions import InvalidSignatureError, ExpiredSignatureError
 from argon2 import PasswordHasher
 from database import Player, create_connection_pool
 from flask import Flask, Response, request
 from flask_cors import CORS
 from sqlalchemy.orm import Session
 from werkzeug.exceptions import HTTPException
+from game import Game, ActiveGames
+
+games = ActiveGames()
 
 
 def main():
@@ -56,11 +60,42 @@ def main():
                 return {'token': token}
             return Response(status=404)
 
-    @ app.route("/save")
-    def save_game():
-        # saves a played game in the database
-        # name + counter
-        return ""
+    @ app.route("/guess", methods=['POST'])
+    def guessing_game():
+        try:
+            token = request.headers.get('Authorization').split(' ')[1]
+        except Exception:
+            return Response('Missing token!', status=401)
+        try:
+            payload: dict = jwt.decode(jwt=token,
+                                       key=key,
+                                       algorithms=['HS256'])
+        except (InvalidSignatureError, ExpiredSignatureError):
+            return Response('Invalid token!', status=401)
+
+        body: dict = request.get_json()
+        game_id = body.get('gameId')
+
+        if not games.get_game_by_id(game_id):
+            new_game = Game()
+            game_id = new_game.id
+            games.start_game(new_game)
+
+        current_game = games.get_game_by_id(game_id)
+
+        guess = int(body.get('guess'))
+        if guess > current_game.number:
+            response_message = 'Zu groß'
+        if guess < current_game.number:
+            response_message = 'Zu klein'
+        if guess == current_game.number:
+            response_message = 'Richtig geraten'
+            with Session(highscore_connection_pool) as session:
+                current_game.save_game(session, payload.get('user'))
+        current_game.tries += 1
+        response = Response(response_message, status=200)
+        response.headers['GameId'] = current_game.id
+        return response
 
     @ app.route("/highscore")
     def get_highscore():
