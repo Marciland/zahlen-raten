@@ -1,21 +1,23 @@
+import json
 from datetime import datetime, timedelta
 from uuid import uuid4
 
 import jwt
-from jwt.exceptions import InvalidSignatureError, ExpiredSignatureError
 from argon2 import PasswordHasher
 from database import Player, create_connection_pool
 from flask import Flask, Response, request
 from flask_cors import CORS
+from game import ActiveGames, Game
+from jwt.exceptions import ExpiredSignatureError, InvalidSignatureError
 from sqlalchemy.orm import Session
 from werkzeug.exceptions import HTTPException
-from game import Game, ActiveGames
 
 games = ActiveGames()
 
 
 def main():
     key = str(uuid4())
+    # key = "test"
     app = Flask(__name__)
     CORS(app)
 
@@ -39,7 +41,7 @@ def main():
                                     response=Response(status=409))
             session.add(Player(username=username, password=hashed_password))
             session.commit()
-            return Response('User created successfully!', status=200)
+        return json.dumps({'detail': 'User created successfully!'}), 200
 
     @ app.route("/login", methods=['POST'])
     def login():
@@ -71,10 +73,18 @@ def main():
                                        key=key,
                                        algorithms=['HS256'])
         except (InvalidSignatureError, ExpiredSignatureError):
-            return Response('Invalid token!', status=401)
+            return json.dumps({'detail': 'Invalid token!'}), 401
 
         body: dict = request.get_json()
         game_id = body.get('gameId')
+        guess: str = body.get('guess')
+
+        if not guess.isdigit():
+            return json.dumps({'detail': 'Not a number!'}), 400
+
+        guess = int(guess)
+        if 100 < guess or guess < 0:
+            return json.dumps({'detail': 'Invalid number!'}), 400
 
         if not games.get_game_by_id(game_id):
             new_game = Game()
@@ -83,7 +93,6 @@ def main():
 
         current_game = games.get_game_by_id(game_id)
 
-        guess = int(body.get('guess'))
         if guess > current_game.number:
             response_message = 'Zu groß'
         if guess < current_game.number:
@@ -93,9 +102,7 @@ def main():
             with Session(highscore_connection_pool) as session:
                 current_game.save_game(session, payload.get('user'))
         current_game.tries += 1
-        response = Response(response_message, status=200)
-        response.headers['GameId'] = current_game.id
-        return response
+        return json.dumps({'detail': response_message, 'gameId': current_game.id}), 200
 
     @ app.route("/highscore")
     def get_highscore():

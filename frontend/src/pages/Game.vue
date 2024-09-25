@@ -21,9 +21,11 @@ const submit = async (event) => {
     const response = await fetch("http://localhost:5000/guess", requestOptions);
 
     if (response.ok) {
-      alert("Success! You guessed the correct number!");
-      // TODO check response message
-      alert("Failure! Try again!");
+      let json = await response.json();
+      alert(json.detail);
+      if (!sessionStorage.getItem("gameId")) {
+        sessionStorage.setItem("gameId", json.gameId);
+      }
       // TODO wenn game finished, lösche game id aus session storage
     } else {
       if (response.status === 401) {
@@ -32,7 +34,8 @@ const submit = async (event) => {
         return;
       }
     }
-  } catch {
+  } catch (error) {
+    console.log(error);
     alert("Error");
   }
 
