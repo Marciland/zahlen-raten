@@ -20,27 +20,30 @@ const submit = async (event) => {
   try {
     const response = await fetch("http://localhost:5000/guess", requestOptions);
 
-    if (response.ok) {
-      let json = await response.json();
-      alert(json.detail);
-      if (!sessionStorage.getItem("gameId")) {
-        sessionStorage.setItem("gameId", json.gameId);
-      }
-      // TODO wenn game finished, lösche game id aus session storage
-    } else {
-      if (response.status === 401) {
-        sessionStorage.removeItem("token");
-        router.push("/");
-        return;
-      }
+    if (response.status === 401) {
+      sessionStorage.removeItem("gameId");
+      router.push("/");
+      return;
+    }
+    if (!response.ok) return;
+
+    let json = await response.json();
+    alert(json.detail);
+    if (!sessionStorage.getItem("gameId")) {
+      sessionStorage.setItem("gameId", json.gameId);
+      return;
+    }
+    if (!json.active) {
+      sessionStorage.removeItem("gameId");
+      router.push("/highscore");
+      return;
     }
   } catch (error) {
     console.log(error);
     alert("Error");
   }
 
-  // TODO if not game id in session storage then save game id in session storage from header
-  // ToDo: Alerts ersetzen wegen schelchter screen reader Kompatibilität
+  // ToDo: Alerts ersetzen wegen schlechter screen reader Kompatibilität
 };
 </script>
 

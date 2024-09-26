@@ -1,108 +1,88 @@
 import json
-from datetime import datetime, timedelta
 from uuid import uuid4
 
-import jwt
-from argon2 import PasswordHasher
-from database import Player, create_connection_pool
+from auth import (get_auth_token, get_payload, request_is_authorized,
+                  token_is_valid)
+from database import Highscore, Player, create_connection_pool
 from flask import Flask, Response, request
 from flask_cors import CORS
-from game import ActiveGames, Game
-from jwt.exceptions import ExpiredSignatureError, InvalidSignatureError
+from game import ActiveGames, guess_is_valid
 from sqlalchemy.orm import Session
-from werkzeug.exceptions import HTTPException
+from user_handling import User, register_user
 
 games = ActiveGames()
 
 
 def main():
     key = str(uuid4())
-    # key = "test"
     app = Flask(__name__)
     CORS(app)
 
-    player_database = 'sqlite:///database/player.db'
-    highscore_database = 'sqlite:///database/highscore.db'
-    player_connection_pool = create_connection_pool(player_database)
-    highscore_connection_pool = create_connection_pool(highscore_database)
+    player_connection_pool = create_connection_pool(
+        'sqlite:///database/player.db')
+    highscore_connection_pool = create_connection_pool(
+        'sqlite:///database/highscore.db')
+
+    @app.route("/validate", methods=['GET'])
+    def validate_token():
+        (_, is_valid) = token_is_valid(request.args.get('token'), key)
+        return Response(json.dumps({'valid': is_valid}), 200)
 
     @app.route("/register", methods=['POST'])
     def register():
         body: dict = request.get_json()
-        username = body.get('username')
-        hashed_password = PasswordHasher().hash(body.get('password'))
+        new_user = User(body.get('username'),
+                        body.get('password'))
+        (error, is_valid) = new_user.is_valid()
+        if not is_valid:
+            return error
         with Session(player_connection_pool) as session:
-            players = session \
-                .query(Player) \
-                .where(Player.username == username) \
-                .all()
-            if players:
-                raise HTTPException(description="User already exists!",
-                                    response=Response(status=409))
-            session.add(Player(username=username, password=hashed_password))
-            session.commit()
-        return json.dumps({'detail': 'User created successfully!'}), 200
+            return register_user(session, new_user)
 
     @ app.route("/login", methods=['POST'])
     def login():
         body: dict = request.get_json()
-        username = body.get('username')
-        password = body.get('password')
+        user: User = User(body.get('username'),
+                          body.get('password'))
+        (error, is_valid) = user.is_valid()
+        if not is_valid:
+            return error
         with Session(player_connection_pool) as session:
-            player = session \
-                .query(Player) \
-                .where(Player.username == username) \
-                .all()
-            if player and PasswordHasher().verify(player[0].password, password):
-                payload = {
-                    'exp': int((datetime.now() + timedelta(minutes=15)).timestamp()),
-                    'user': player[0].username
-                }
-                token = jwt.encode(payload=payload, key=key, algorithm='HS256')
-                return {'token': token}
-            return Response(status=404)
+            (error, token) = user.login(session, key)
+            if not token:
+                return error
+        return {'token': token}
 
     @ app.route("/guess", methods=['POST'])
     def guessing_game():
-        try:
-            token = request.headers.get('Authorization').split(' ')[1]
-        except Exception:
-            return Response('Missing token!', status=401)
-        try:
-            payload: dict = jwt.decode(jwt=token,
-                                       key=key,
-                                       algorithms=['HS256'])
-        except (InvalidSignatureError, ExpiredSignatureError):
-            return json.dumps({'detail': 'Invalid token!'}), 401
+        (error, authorized) = request_is_authorized(request, key)
+        if not authorized:
+            return error
 
         body: dict = request.get_json()
-        game_id = body.get('gameId')
+
         guess: str = body.get('guess')
+        (error, is_valid) = guess_is_valid(guess)
+        if not is_valid:
+            return error
 
-        if not guess.isdigit():
-            return json.dumps({'detail': 'Not a number!'}), 400
-
-        guess = int(guess)
-        if 100 < guess or guess < 0:
-            return json.dumps({'detail': 'Invalid number!'}), 400
-
-        if not games.get_game_by_id(game_id):
-            new_game = Game()
-            game_id = new_game.id
-            games.start_game(new_game)
-
+        game_id = body.get('gameId')
         current_game = games.get_game_by_id(game_id)
+        if not current_game:
+            return json.dumps({'detail': 'Invalid gameId!'}), 401
 
-        if guess > current_game.number:
-            response_message = 'Zu groß'
-        if guess < current_game.number:
-            response_message = 'Zu klein'
-        if guess == current_game.number:
-            response_message = 'Richtig geraten'
-            with Session(highscore_connection_pool) as session:
-                current_game.save_game(session, payload.get('user'))
         current_game.tries += 1
-        return json.dumps({'detail': response_message, 'gameId': current_game.id}), 200
+        (response_message, active) = current_game.get_response_message(int(guess))
+        if not active:
+            with Session(highscore_connection_pool) as session:
+                payload = get_payload(get_auth_token(request), key)
+                current_game.save_game(session, payload.get('user'))
+            games.stop_game(current_game)
+
+        return Response(json.dumps({'detail': response_message,
+                                    'gameId': str(current_game.id),
+                                    'active': active}),
+                        200)
 
     @ app.route("/highscore")
     def get_highscore():
@@ -112,7 +92,10 @@ def main():
     @ app.route("/debug")
     def debugging():
         with Session(player_connection_pool) as session:
-            return session.query(Player).all()
+            all_players = session.query(Player).all()
+        with Session(highscore_connection_pool) as session:
+            all_highscores = session.query(Highscore).all()
+        return {'players': all_players, 'highscores': all_highscores}
 
     app.run()
 

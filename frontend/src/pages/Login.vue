@@ -1,7 +1,5 @@
 <script setup>
-import { ref } from "vue";
 import { router } from "@/router";
-import { tokenIsValid } from "@/assets/validation";
 
 const submit = async (event) => {
   event.preventDefault();

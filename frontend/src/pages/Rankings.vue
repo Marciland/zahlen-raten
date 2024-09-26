@@ -1,5 +1,5 @@
 <script setup></script>
 
-<template>Rangliste</template>
+<template>Highscores</template>
 
 <style></style>

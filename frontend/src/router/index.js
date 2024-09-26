@@ -11,21 +11,26 @@ export const router = createRouter({
   ],
 });
 
-router.beforeEach((to, _from) => {
+router.beforeEach(async (to, _from, next) => {
   const privateRoutes = ["/game", "/highscore"];
 
-  if (to.path === "/" && sessionStorage.getItem("token")) {
-    router.push("/game");
+  if (
+    to.path === "/" &&
+    (await tokenIsValid(sessionStorage.getItem("token")))
+  ) {
+    // gehe zu game, wenn user zu login mit gültigem token will
+    return next("/game");
   }
-
   if (privateRoutes.includes(to.path)) {
+    // wenn private und nicht gültig, gehe zu index
     let token = sessionStorage.getItem("token");
-    if (tokenIsValid(token)) {
-      return true;
+    if (await tokenIsValid(token)) {
+      return next();
+    } else {
+      sessionStorage.removeItem("token");
+      return next("/");
     }
-
-    sessionStorage.removeItem("token");
-    router.push("/");
     // TODO alert
   }
+  next();
 });

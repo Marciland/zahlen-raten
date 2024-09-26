@@ -1,9 +1,21 @@
-from uuid import UUID, uuid4
+from json import dumps
 from random import SystemRandom
-from sqlalchemy.orm import Session
+from uuid import UUID, uuid4
+
 from database import Highscore
+from flask import Response
+from sqlalchemy.orm import Session
 
 randomizer = SystemRandom()
+
+
+def guess_is_valid(guess: str) -> tuple[Response, bool]:
+    if not guess.isdigit():
+        return Response(dumps({'detail': 'Not a number!'}), 400), False
+    guess = int(guess)
+    if 100 < guess or guess < 0:
+        return Response(dumps({'detail': 'Invalid number!'}), 400), False
+    return None, True
 
 
 class Game:
@@ -21,7 +33,14 @@ class Game:
                               username=current_user,
                               tries=self.tries))
         session.commit()
-        # remove from list
+
+    def get_response_message(self, guess: int) -> tuple[str, bool]:
+        if guess > self.number:
+            return 'Zu groß', True
+        if guess < self.number:
+            return 'Zu klein', True
+        if guess == self.number:
+            return 'Richtig geraten', False
 
 
 class ActiveGames:
@@ -30,10 +49,17 @@ class ActiveGames:
     def __init__(self) -> None:
         self.games = []
 
-    def get_game_by_id(self, game_id: UUID) -> Game | None:
+    def get_game_by_id(self, game_id: UUID | None) -> Game | None:
+        if not game_id:
+            new_game = Game()
+            self.start_game(new_game)
+            return new_game
         for game in self.games:
-            if game.id == game_id:
+            if game.id == UUID(game_id):  # TODO check for UUID
                 return game
 
     def start_game(self, game: Game):
         self.games.append(game)
+
+    def stop_game(self, game: Game):
+        self.games.remove(game)
