@@ -1,21 +1,25 @@
-from json import dumps
 from random import SystemRandom
 from uuid import UUID, uuid4
 
 from modules import Highscore
-from flask import Response
 from sqlalchemy.orm import Session
+
+from .response import JsonResponse
 
 randomizer = SystemRandom()
 
 
-def guess_is_valid(guess: str) -> tuple[Response, bool]:
+def guess_is_valid(guess: str) -> tuple[JsonResponse, bool]:
     if not guess.isdigit():
-        return Response(dumps({'detail': 'Not a number!'}), 400), False
+        return JsonResponse('Not a number!', 400), False
     guess = int(guess)
     if 100 < guess or guess < 0:
-        return Response(dumps({'detail': 'Invalid number!'}), 400), False
+        return JsonResponse('Invalid number!', 400), False
     return None, True
+
+
+def sort_highscores(scores: list[Highscore]) -> list[Highscore]:
+    pass
 
 
 class Game:
@@ -55,7 +59,7 @@ class ActiveGames:
             self.start_game(new_game)
             return new_game
         for game in self.games:
-            if game.id == UUID(game_id):  # TODO check for UUID
+            if game.id == UUID(str(game_id)):
                 return game
 
     def start_game(self, game: Game):

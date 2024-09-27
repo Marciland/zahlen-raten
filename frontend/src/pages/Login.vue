@@ -1,37 +1,23 @@
 <script setup>
 import { router } from "@/router";
+import { request } from "@/assets/request.js";
 
 const submit = async (event) => {
   event.preventDefault();
-  const url = "http://localhost:5000/" + event.submitter.id;
-  let token;
+  const url = "http://localhost:5000/users/" + event.submitter.id;
 
   const username = document.getElementById("userName").value;
   const password = document.getElementById("password").value;
-  const requestOptions = {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    signal: AbortSignal.timeout(2000),
-    body: JSON.stringify({ username, password }),
-  };
-  // TODO handle errors properly
+
   try {
-    const response = await fetch(url, requestOptions);
-    if (response.status != 200) {
-      console.log(response.status);
-      return;
-    }
-    const body = await response.json();
-    token = body.token;
+    let response = await request(url, "POST", { username, password });
+    // TODO popup with successfully logged in or registered
+    sessionStorage.setItem("token", response.token);
+    router.push("/game"); // TODO should this push if registred successfully? if so, create a token in backend!
   } catch (error) {
     console.log(error);
-    return;
+    // TODO this is only if the server is unreachable and cannot be caught in handle response!
   }
-  // TODO popup with successfully logged in or registered
-  sessionStorage.setItem("token", token);
-  router.push("/game");
 };
 </script>
 

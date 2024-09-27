@@ -6,7 +6,7 @@
     "**/CVS": true,
     "**/.DS_Store": true,
     "**/Thumbs.db": true,
-    "backend/__pycache__": true,
+    "backend/**/__pycache__": true,
     "backend/.pytest_cache": true,
     "backend/.coverage": true,
     "frontend/dist": true,

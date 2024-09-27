@@ -1,49 +1,35 @@
 <script setup>
 import { router } from "@/router";
+import { request } from "@/assets/request.js";
 
 const submit = async (event) => {
   event.preventDefault();
   const guess = document.getElementById("inputGuess").value;
   const gameId = sessionStorage.getItem("gameId");
-  const token = sessionStorage.getItem("token");
-
-  const requestOptions = {
-    method: "POST",
-    headers: {
-      Authorization: "Bearer " + token,
-      "Content-Type": "application/json",
-    },
-    signal: AbortSignal.timeout(2000),
-    body: JSON.stringify({ gameId, guess }),
-  };
+  const url = "http://localhost:5000/game/guess";
 
   try {
-    const response = await fetch("http://localhost:5000/guess", requestOptions);
+    let response = await request(url, "POST", { gameId, guess });
 
-    if (response.status === 401) {
-      sessionStorage.removeItem("gameId");
-      router.push("/");
-      return;
-    }
-    if (!response.ok) return;
+    let displayResponseElement = document.getElementById("responseMessage");
+    displayResponseElement.style.color = "red";
+    displayResponseElement.textContent = response.detail;
+    let displayTryCount = document.getElementById("tryCount");
+    displayTryCount.textContent = "Anzahl deiner Versuche: " + response.tries;
 
-    let json = await response.json();
-    alert(json.detail);
     if (!sessionStorage.getItem("gameId")) {
-      sessionStorage.setItem("gameId", json.gameId);
+      sessionStorage.setItem("gameId", response.gameId);
       return;
     }
-    if (!json.active) {
+    if (!response.active) {
       sessionStorage.removeItem("gameId");
       router.push("/highscore");
       return;
     }
   } catch (error) {
     console.log(error);
-    alert("Error");
+    // TODO this is only if the server is unreachable and cannot be caught in handle response!
   }
-
-  // ToDo: Alerts ersetzen wegen schlechter screen reader Kompatibilität
 };
 </script>
 
@@ -62,6 +48,8 @@ const submit = async (event) => {
         max="100"
         required
       />
+      <p id="responseMessage"></p>
+      <p id="tryCount"></p>
       <button id="guess" type="submit">RATEN!</button>
     </form>
   </div>
@@ -85,5 +73,10 @@ const submit = async (event) => {
   padding: 10px;
   cursor: pointer;
   margin-bottom: 15px;
+}
+
+#responseMessage,
+#tryCount {
+  text-align: center;
 }
 </style>
