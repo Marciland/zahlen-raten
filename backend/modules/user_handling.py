@@ -2,7 +2,7 @@ import json
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from argon2 import PasswordHasher
-from database import Player
+from modules import Player
 from flask import Response
 from sqlalchemy.orm import Session
 from werkzeug.exceptions import HTTPException

@@ -1,4 +1,25 @@
 {
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "backend/__pycache__": true,
+    "backend/.pytest_cache": true,
+    "backend/.coverage": true,
+    "frontend/dist": true,
+    "frontend/node_modules": true
+  },
   "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode"
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "python.testing.cwd": "${workspaceFolder}/backend",
+  "python.testing.pytestEnabled": true,
+  "python.testing.autoTestDiscoverOnSaveEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestArgs": [
+    "--rootdir=${workspaceFolder}/backend",
+    "--cov=modules"
+  ]
 }

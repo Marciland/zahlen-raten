@@ -2,7 +2,7 @@ from json import dumps
 from random import SystemRandom
 from uuid import UUID, uuid4
 
-from database import Highscore
+from modules import Highscore
 from flask import Response
 from sqlalchemy.orm import Session
 

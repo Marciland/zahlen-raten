@@ -1,14 +1,13 @@
 import json
 from uuid import uuid4
 
-from auth import (get_auth_token, get_payload, request_is_authorized,
-                  token_is_valid)
-from database import Highscore, Player, create_connection_pool
 from flask import Flask, Response, request
 from flask_cors import CORS
-from game import ActiveGames, guess_is_valid
+from modules import (ActiveGames, Highscore, Player, User,
+                     create_connection_pool, get_auth_token, get_payload,
+                     guess_is_valid, register_user, request_is_authorized,
+                     token_is_valid)
 from sqlalchemy.orm import Session
-from user_handling import User, register_user
 
 games = ActiveGames()
 
@@ -80,6 +79,7 @@ def main():
             games.stop_game(current_game)
 
         return Response(json.dumps({'detail': response_message,
+                                    'tries': current_game.tries,
                                     'gameId': str(current_game.id),
                                     'active': active}),
                         200)
