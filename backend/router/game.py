@@ -1,6 +1,7 @@
+from database import Highscore
 from flask import Blueprint, request
-from modules import (ActiveGames, Highscore, JsonResponse, get_auth_token,
-                     get_payload, guess_is_valid, request_is_authorized)
+from modules import (ActiveGames, JsonResponse, get_auth_token, get_payload,
+                     guess_is_valid, request_is_authorized)
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 

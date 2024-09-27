@@ -1,7 +1,7 @@
 from random import SystemRandom
 from uuid import UUID, uuid4
 
-from modules import Highscore
+from database import Highscore
 from sqlalchemy.orm import Session
 
 from .response import JsonResponse

@@ -2,8 +2,8 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 
 from argon2 import PasswordHasher
+from database import Player
 from jwt import encode
-from modules import Player
 from sqlalchemy.orm import Session
 
 from .response import JsonResponse

@@ -9,6 +9,7 @@
     "backend/**/__pycache__": true,
     "backend/.pytest_cache": true,
     "backend/.coverage": true,
+    "backend/coverage.xml": true,
     "frontend/dist": true,
     "frontend/node_modules": true
   },
@@ -20,6 +21,8 @@
   "python.testing.unittestEnabled": false,
   "python.testing.pytestArgs": [
     "--rootdir=${workspaceFolder}/backend",
-    "--cov=modules"
-  ]
+    "--cov=modules",
+    "--cov=database"
+  ],
+  "python.analysis.extraPaths": ["backend"]
 }

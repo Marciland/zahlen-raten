@@ -1,9 +1,9 @@
 from uuid import uuid4
 
+from database import Highscore, Player, create_connection_pool
 from flask import Flask, request
 from flask_cors import CORS
-from modules import (ActiveGames, Highscore, JsonResponse, Player,
-                     create_connection_pool, token_is_valid)
+from modules import ActiveGames, JsonResponse, token_is_valid
 from router import create_game_blueprint, create_users_blueprint
 from sqlalchemy.orm import Session
 
