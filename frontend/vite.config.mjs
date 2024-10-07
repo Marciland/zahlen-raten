@@ -11,4 +11,20 @@ export default defineConfig({
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
   },
+  test: {
+    globals: true,
+    environment: "jsdom",
+    include: ["**/*.unit.js"],
+    coverage: {
+      provider: "istanbul",
+      exclude: [
+        "dist",
+        "**/index.js",
+        "**/*.vue",
+        "vite.config.js",
+        "cypress.config.js",
+        "tests",
+      ],
+    },
+  },
 });
