@@ -12,6 +12,9 @@ export const router = createRouter({
 });
 
 router.beforeEach(async (to, _from, next) => {
+  if (!["/", "/game", "/highscore"].includes(to.path)) {
+    return next("/"); // TODO 404 page?
+  }
   const privateRoutes = ["/game", "/highscore"];
 
   if (

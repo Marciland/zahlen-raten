@@ -1,7 +1,7 @@
 from database import Highscore
 from flask import Blueprint, request
 from modules import (ActiveGames, JsonResponse, get_auth_token, get_payload,
-                     guess_is_valid, request_is_authorized)
+                     guess_is_valid, request_is_authorized, sort_highscores)
 from sqlalchemy import Engine
 from sqlalchemy.orm import Session
 
@@ -42,9 +42,11 @@ def create_game_blueprint(connection_pool: Engine, key: str, games: ActiveGames)
         }
         return JsonResponse(response_message, 200, body)
 
-    @blueprint.route("/highscore")
+    @blueprint.route("/highscore", methods=["GET"])
     def get_highscore():
         with Session(connection_pool) as session:
-            _ = session.query(Highscore).all()
+            highscores = session.query(Highscore).all()
+        sorted_highscores = sort_highscores(highscores)
+        return JsonResponse('All scores', 200, {'highscores': sorted_highscores})
 
     return blueprint

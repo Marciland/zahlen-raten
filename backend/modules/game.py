@@ -1,3 +1,4 @@
+from dataclasses import asdict, dataclass
 from random import SystemRandom
 from uuid import UUID, uuid4
 
@@ -16,10 +17,6 @@ def guess_is_valid(guess: str) -> tuple[JsonResponse, bool]:
     if 100 < guess or guess < 0:
         return JsonResponse('Invalid number!', 400), False
     return None, True
-
-
-def sort_highscores(scores: list[Highscore]) -> list[Highscore]:
-    pass
 
 
 class Game:
@@ -67,3 +64,15 @@ class ActiveGames:
 
     def stop_game(self, game: Game):
         self.games.remove(game)
+
+
+@dataclass
+class UIHighscore:
+    username: str
+    tries: int
+
+
+def sort_highscores(scores: list[Highscore]) -> list[UIHighscore]:
+    ui_scores = [asdict(UIHighscore(username=score.username,
+                                    tries=score.tries)) for score in scores]
+    return sorted(ui_scores, key=lambda score: score['tries'])

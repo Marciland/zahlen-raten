@@ -28,7 +28,6 @@ const submit = async (event) => {
     }
   } catch (error) {
     console.log(error);
-    // TODO this is only if the server is unreachable and cannot be caught in handle response!
   }
 };
 </script>

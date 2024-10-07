@@ -37,5 +37,18 @@ body {
 label {
   margin-bottom: 5px;
   font-weight: bold;
-  font-size: 18px;
+  font-size: 19px;
+}
+
+#customAlert {
+  display: none;
+  background-color: #5af581;
+  color: #178a26;
+  padding: 20px;
+  border: 1px solid #178a26;
+  position: fixed;
+  bottom: 100px;
+  width: 300px;
+  text-align: center;
+  border-radius: 5px;
 }

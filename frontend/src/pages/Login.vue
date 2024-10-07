@@ -1,6 +1,11 @@
 <script setup>
 import { router } from "@/router";
 import { request } from "@/assets/request.js";
+import { inject } from "vue";
+import { getPayload } from "@/assets/validation";
+
+const isLoggedIn = inject("isLoggedIn");
+const user = inject("user");
 
 const submit = async (event) => {
   event.preventDefault();
@@ -11,12 +16,19 @@ const submit = async (event) => {
 
   try {
     let response = await request(url, "POST", { username, password });
-    // TODO popup with successfully logged in or registered
+    var alertBox = document.getElementById("customAlert");
+    alertBox.style.display = "block";
+    setTimeout(function () {
+      alertBox.style.display = "none";
+    }, 5000);
     sessionStorage.setItem("token", response.token);
-    router.push("/game"); // TODO should this push if registred successfully? if so, create a token in backend!
+
+    const payload = getPayload(response.token);
+    isLoggedIn.value = payload.user !== undefined;
+    user.value = payload.user;
+    router.push("/game");
   } catch (error) {
     console.log(error);
-    // TODO this is only if the server is unreachable and cannot be caught in handle response!
   }
 };
 </script>
@@ -30,6 +42,7 @@ const submit = async (event) => {
       <button id="login" type="submit">Login</button>
       <button id="register" type="submit">Register</button>
     </form>
+    <div id="customAlert">Registrierung war erfolgreich!</div>
   </div>
 </template>
 

@@ -19,6 +19,7 @@ export default defineConfig({
       provider: "istanbul",
       exclude: [
         "dist",
+        "src/main.js",
         "**/index.js",
         "**/*.vue",
         "vite.config.js",

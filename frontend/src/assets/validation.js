@@ -1,14 +1,23 @@
-const tokenIsValid = async (token) => {
-  if (!token) {
-    return false;
-  }
-
+const getPayload = (token) => {
   let payload;
   try {
     var base64Url = token.split(".")[1];
     var base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
     var jsonPayload = decodeURIComponent(window.atob(base64));
     payload = JSON.parse(jsonPayload);
+  } catch (error) {
+    payload = {};
+  }
+  return payload;
+};
+
+const tokenIsValid = async (token) => {
+  if (!token) {
+    return false;
+  }
+
+  try {
+    let payload = getPayload(token);
     if (Date.now() >= payload.exp * 1000) {
       return false;
     }
@@ -21,4 +30,4 @@ const tokenIsValid = async (token) => {
   }
 };
 
-export { tokenIsValid };
+export { tokenIsValid, getPayload };

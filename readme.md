@@ -7,5 +7,5 @@ npm run e2e-test
 
 cd backend
 pip install -r requirements.txt
-pytest --cov=modules --cov=database
+python -m pytest --cov=modules --cov=database
 python main.py
