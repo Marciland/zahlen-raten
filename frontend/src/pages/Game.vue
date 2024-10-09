@@ -1,6 +1,9 @@
 <script setup>
+import { inject } from "vue";
 import { router } from "@/router";
 import { request } from "@/assets/request.js";
+
+const yourTries = inject("yourTries");
 
 const submit = async (event) => {
   event.preventDefault();
@@ -22,6 +25,7 @@ const submit = async (event) => {
       return;
     }
     if (!response.active) {
+      yourTries.value = response.tries;
       sessionStorage.removeItem("gameId");
       router.push("/highscore");
       return;

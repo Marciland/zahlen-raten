@@ -1,10 +1,12 @@
 <script setup>
-import { onBeforeMount, ref } from "vue";
+import { onBeforeMount, ref, inject, onMounted } from "vue";
 import { router } from "@/router";
 import { request } from "@/assets/request.js";
 
+const yourTries = inject("yourTries");
 const highscores = ref([]);
-// TODO show tries from last game
+const loading = ref(false);
+const fromGame = ref(false);
 
 const newGame = () => {
   try {
@@ -15,14 +17,20 @@ const newGame = () => {
   }
 };
 
+onMounted(() => {
+  fromGame.value = yourTries.value !== "";
+});
+
 onBeforeMount(async () => {
+  loading.value = true;
   let response = await request("http://localhost:5000/game/highscore", "GET");
   highscores.value = response.highscores;
+  loading.value = false;
 });
 </script>
 
 <template>
-  <div class="displayBox">
+  <div class="displayBox" v-if="!loading">
     <h1>Highscores</h1>
     <table style="width: 70%; min-width: max-content">
       <thead>
@@ -40,7 +48,11 @@ onBeforeMount(async () => {
         </tr>
       </tbody>
     </table>
+    <div v-if="fromGame">Dein Ergebnis: {{ yourTries }}</div>
     <button id="newGame" type="submit" @click="newGame">Neues Spiel</button>
+  </div>
+  <div v-else class="displayBox">
+    <h1>Daten werden geladen</h1>
   </div>
 </template>
 
