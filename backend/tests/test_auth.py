@@ -2,6 +2,7 @@ from modules import get_auth_token, get_payload, request_is_authorized, token_is
 import jwt
 from flask import Request
 from werkzeug.test import EnvironBuilder
+import pytest
 
 
 def test_get_auth_token():
@@ -26,22 +27,17 @@ def token_is_valid():
     assert token_is_valid(token, key)[1]
 
 
-def test_request_is_authorized():
+@pytest.mark.parametrize('test_key, valid', [
+    ("SECRET_KEY", True),
+    ("WRONG_KEY", False)
+])
+def test_request_is_authorized(test_key, valid):
     key = "SECRET_KEY"
-    test_payload = {'user_id': 123}
-    token = jwt.encode(test_payload, key, algorithm='HS256')
+    payload = {'user_id': 123}
+    token = jwt.encode(payload, key, algorithm='HS256')
     env = EnvironBuilder(headers={'Authorization': 'Bearer ' + token})
     request = Request(env.get_environ())
-    assert request_is_authorized(request, key)[1] == True
-
-
-def test_request_is_not_valid():
-    key = "SECRET_KEY"
-    test_payload = {'user_id': 123}
-    token = jwt.encode(test_payload, key, algorithm='HS256')
-    env = EnvironBuilder(headers={'Authorization': 'Bearer ' + token})
-    request = Request(env.get_environ())
-    assert request_is_authorized(request, "WRONG_KEY")[1] == False
+    assert request_is_authorized(request, test_key)[1] == valid
 
 
 def test_token_missing():
