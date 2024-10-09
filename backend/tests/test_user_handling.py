@@ -1,49 +1,23 @@
-from dataclasses import dataclass
-from datetime import datetime, timedelta
-
-from argon2 import PasswordHasher
+import pytest
 from database import Player
-from jwt import encode
+from modules import User, register_user
 from sqlalchemy.orm import Session
 
-from .response import JsonResponse
+@pytest.mark.parametrize('username, password, valid', [
+    ("username", "password", True),
+    ("username", "", False),
+    ("", "password", False)
+])
+def test_is_valid(username, password, valid):
+    test_user = User(username, password)
+    assert test_user.is_valid()[1] == valid
 
+def test_failed_login(db_session: Session):
+    test_user = User("not", "registered")
+    assert test_user.login(db_session, "key")[1] == None
 
-@dataclass
-class User:
-    username: str
-    password: str
-
-    def is_valid(self) -> tuple[JsonResponse | None, bool]:
-        if not self.username:
-            return JsonResponse('missing username', 500), False
-        if not self.password:
-            return JsonResponse('missing password', 500), False
-        return None, True
-
-    def login(self, session: Session, key: str) -> tuple[JsonResponse, str]:
-        player = session.query(Player).where(Player.username ==
-                                             self.username).all()
-        if player and PasswordHasher().verify(player[0].password, self.password):
-            payload = {
-                'exp': int((datetime.now() + timedelta(minutes=15)).timestamp()),
-                'user': player[0].username
-            }
-            return None, encode(payload=payload, key=key, algorithm='HS256')
-        return JsonResponse('Unable to login with these credentials', 404), None
-
-
-def player_exists(session: Session, username: str) -> bool:
-    return bool(session
-                .query(Player)
-                .where(Player.username == username)
-                .all())
-
-
-def register_user(session: Session, user: User) -> tuple[dict, int]:
-    if player_exists(session, user.username):
-        return JsonResponse('User already exists!', 409)
-    hashed_password = PasswordHasher().hash(user.password)
-    session.add(Player(username=user.username, password=hashed_password))
-    session.commit()
-    return JsonResponse('User created successfully!', 201)
+def test_register_user_and_login(db_session: Session):
+    test_user = User("name", "password")
+    assert register_user(db_session, test_user).status, "201 CREATED"
+    assert register_user(db_session, test_user).status, "409 CONFLICT"
+    assert test_user.login(db_session, "key")[0] == None
