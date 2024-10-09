@@ -1,4 +1,5 @@
-[![codecov](https://codecov.io/github/Marciland/zahlen-raten/graph/badge.svg?token=NZXMH5J9GG)](https://codecov.io/github/Marciland/zahlen-raten)
+[![Frontend codecov](https://codecov.io/github/Marciland/zahlen-raten/graph/badge.svg?token=NZXMH5J9GG)](https://codecov.io/github/Marciland/zahlen-raten)
+[![Backend codecov](https://codecov.io/github/Marciland/zahlen-raten/graph/badge.svg?token=NZXMH5J9GG)](https://codecov.io/github/Marciland/zahlen-raten)
 
 cd frontend
 npm install

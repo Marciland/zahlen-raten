@@ -27,6 +27,7 @@ jobs:
       - name: Upload results to Codecov
         uses: codecov/codecov-action@v4
         with:
+          flags: frontend
           token: ${{ secrets.CODECOV_TOKEN }}
 
   backend:
@@ -49,3 +50,9 @@ jobs:
         run: |
           cd backend
           python -m pytest --cov=modules --cov=database
+
+      - name: Upload results to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          flags: backend
+          token: ${{ secrets.CODECOV_TOKEN }}
