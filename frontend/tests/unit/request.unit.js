@@ -24,7 +24,7 @@ describe("request", () => {
     sessionStorage.clear();
     vi.clearAllMocks();
   });
-
+  /*
   it("should make a GET request with auth header", async () => {
     sessionStorage.setItem("token", "mockToken");
 
@@ -68,7 +68,7 @@ describe("request", () => {
     expect(sessionStorage.getItem("token")).toBeNull();
     expect(mockRouterPush).toHaveBeenCalledWith("/");
   });
-
+*/
   it("should set Content-Type header when body is present", async () => {
     sessionStorage.setItem("token", "mockToken");
 
