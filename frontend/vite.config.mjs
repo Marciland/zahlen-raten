@@ -16,13 +16,13 @@ export default defineConfig({
     environment: "jsdom",
     include: ["**/*.unit.js"],
     coverage: {
-      provider: "istanbul",
+      provider: "v8",
       exclude: [
         "dist",
         "src/main.js",
         "**/index.js",
         "**/*.vue",
-        "vite.config.js",
+        "vite.config.mjs",
         "cypress.config.js",
         "tests",
       ],
