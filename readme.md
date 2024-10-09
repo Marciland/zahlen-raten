@@ -1,5 +1,6 @@
-[![Frontend codecov](https://codecov.io/github/Marciland/zahlen-raten/graph/badge.svg?token=NZXMH5J9GG)](https://codecov.io/github/Marciland/zahlen-raten)
-[![Backend codecov](https://codecov.io/github/Marciland/zahlen-raten/graph/badge.svg?token=NZXMH5J9GG)](https://codecov.io/github/Marciland/zahlen-raten)
+[![Frontend codecov](https://codecov.io/github/Marciland/zahlen-raten/graph/badge.svg?token=NZXMH5J9GG&flag=frontend)](https://codecov.io/github/Marciland/zahlen-raten)
+[![Backend codecov](https://codecov.io/github/Marciland/zahlen-raten/graph/badge.svg?token=NZXMH5J9GG&flag=backend)](https://codecov.io/github/Marciland/zahlen-raten)
+![Coverage Sunburst](https://codecov.io/github/Marciland/zahlen-raten/graphs/sunburst.svg?token=NZXMH5J9GG)
 
 cd frontend
 npm install
